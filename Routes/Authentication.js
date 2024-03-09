@@ -3,6 +3,7 @@ const User = require('../models/usermodel');
 const bcrypt= require('bcrypt');
 const jwt = require('jsonwebtoken');
 const AuthRouter = express.Router();
+const generateTokenAndSetCookies =require('../utilis/helper/generateTokenAndSetCookies')
 
 AuthRouter.post('/register' , async (req,res)=>{
     const { name , username , email , password , profilePic, followers , following  , bio} = req.body;
@@ -26,6 +27,10 @@ AuthRouter.post('/register' , async (req,res)=>{
 
         user = await  user.save();
         res.status(200).json(user);
+       
+           
+
+        
     }
 })
 
@@ -45,7 +50,33 @@ AuthRouter.post('/login' , async(req,res)=>{
         const token = jwt.sign({ userId: user._id } , "secureKey");
         res.json({user , token});
     }
+    if(user){
+        generateTokenAndSetCookies(user._id,res);
+   }
 
+})
+
+
+AuthRouter.post('/logout' , async(req,res)=>{
+    try {
+       res.cookie("jwt" ,"" ,{maxAge:1});
+       res.status(200).json({message:"user logout sucessfully"});
+    } catch (error) {
+        res.status(500).json({message:err.message});
+    }
+
+   
+})
+
+
+//  CREATING API FOR IMPRESSION
+
+AuthRouter.post("/post-follow" , async (req , res)=>{
+    try {
+        
+    } catch (error) {
+        console.log(error);
+    }
 })
 
 
