@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const cookie =require('cookie-parser')
 const AuthRouter = express.Router();
  const generateTokenAndSetCookies =require('../utilis/helper/generateTokenAndSetCookies')
+ const protectRoute = require('../middlewware/protectRoute')
 
 AuthRouter.post('/register' , async (req,res)=>{
     const { name , username , email , password , profilePic, followers , following  , bio} = req.body;
@@ -74,15 +75,35 @@ AuthRouter.post('/logout' , async(req,res)=>{
 })
 
 
-// //  CREATING API FOR IMPRESSION
+AuthRouter.post('/follow/:id' , protectRoute , async(req,res)=>{
+try {
+   const {id}=req.params;
+   const usertomodify = await User.findById(id);
+   const currentUser = await User.findById(req.user._id);
+   
+   if(id===req.user._id)return res.status(400).json({message:"You can not follow and unfollow YourSelf"});
 
-// AuthRouter.post("/post-follow" , async (req , res)=>{
-//     try {
-        
-//     } catch (error) {
-//         console.log(error);
-//     }
-// })
+   if(!usertomodify|| !currentUser)  return res.status(400).json({message:"User not found"})
+   const isfollowing=currentUser.following.includes(id);
+if(isfollowing){
+    await User.findByIdAndUpdate(req.user._id,{$pull:{following:id}});
+    await User.findByIdAndUpdate(id,{$pull:{followers:req.user._id}});
+    res.status(200).json({message:"user unfollowed successfully"})
+}else{
+    await User.findByIdAndUpdate(id,{ $push:{followers: req.user._id}});
+    await User.findByIdAndUpdate(req.user._id , {$push:{following:id}});
+
+}
+    
+} catch (error) {
+    res.status(500).json({message:error.message});
+    console.log("Error in follow:" , error.message);
+    
+}
+})
+
+
+
 
 
 module.exports = AuthRouter;
