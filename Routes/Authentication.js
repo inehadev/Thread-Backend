@@ -84,11 +84,15 @@ try {
    if(id===req.user._id)return res.status(400).json({message:"You can not follow and unfollow YourSelf"});
 
    if(!usertomodify|| !currentUser)  return res.status(400).json({message:"User not found"})
+
    const isfollowing=currentUser.following.includes(id);
-if(isfollowing){
+   await currentUser.save();
+   if(isfollowing){
     await User.findByIdAndUpdate(req.user._id,{$pull:{following:id}});
     await User.findByIdAndUpdate(id,{$pull:{followers:req.user._id}});
-    res.status(200).json({message:"user unfollowed successfully"})
+    // res.status(200).json({message:"user unfollowed successfully"})
+    return res.status(200).json({ message: "You are now following " + usertomodify.username });
+
 }else{
     await User.findByIdAndUpdate(id,{ $push:{followers: req.user._id}});
     await User.findByIdAndUpdate(req.user._id , {$push:{following:id}});
