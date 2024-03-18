@@ -75,37 +75,39 @@ AuthRouter.post('/logout' , async(req,res)=>{
 })
 
 
-AuthRouter.post('/follow/:id' , protectRoute , async(req,res)=>{
-try {
-   const {id}=req.params;
-   const usertomodify = await User.findById(id);
-   const currentUser = await User.findById(req.user._id);
-   
-   if(id===req.user._id)return res.status(400).json({message:"You can not follow and unfollow YourSelf"});
+// 
 
-   if(!usertomodify|| !currentUser)  return res.status(400).json({message:"User not found"})
-   const isfollowing=currentUser.following.includes(id);
-    await currentUser.save();
-    return res.status(200).json({ message: "You are now following " + usertomodify.username });
-    if(isfollowing){
-        await User.findByIdAndUpdate(req.user._id,{$pull:{following:id}});
-        await User.findByIdAndUpdate(id,{$pull:{followers:req.user._id}});
-        // res.status(200).json({message:"user unfollowed successfully"})
-        return res.status(200).json({ message: "You are now following " + usertomodify.username });
-    
-    }else{
-        await User.findByIdAndUpdate(id,{ $push:{followers: req.user._id}});
-        await User.findByIdAndUpdate(req.user._id , {$push:{following:id}});
-    
+
+
+
+AuthRouter.post('/follow/:id', protectRoute, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const usertomodify = await User.findById(id);
+        const currentUser = await User.findById(req.user._id);
+
+        if (id === req.user._id) return res.status(400).json({ message: "You cannot follow and unfollow yourself" });
+
+        if (!usertomodify || !currentUser) return res.status(400).json({ message: "User not found" });
+
+        const isfollowing = currentUser.following.includes(id);
+
+        if (isfollowing) {
+            await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } });
+            await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
+            await currentUser.save();
+            return res.status(200).json({ message: "User unfollowed successfully" });
+        } else {
+            await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
+            await User.findByIdAndUpdate(req.user._id, { $push: { following: id } });
+            return res.status(200).json({ message: "You are now following " + usertomodify.username });
+        }
+    } catch (error) {
+        console.log("Error in follow:", error.message);
+        return res.status(500).json({ message: error.message });
     }
-        
-    
-} catch (error) {
-    res.status(500).json({message:error.message});
-    console.log("Error in follow:" , error.message);
-    
-}
-})
+});
+
 
 
 
