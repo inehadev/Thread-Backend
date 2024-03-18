@@ -11,7 +11,7 @@ UserRouter.post('/follow/:id', protectRoute, async (req, res) => {
         const usertomodify = await User.findById(id);
         const currentUser = await User.findById(req.user._id);
 
-        if (id === req.user._id) return res.status(400).json({ message: "You cannot follow and unfollow yourself" });
+        if (id === req.user._id.toString()) return res.status(400).json({ message: "You cannot follow and unfollow yourself" });
 
         if (!usertomodify || !currentUser) return res.status(400).json({ message: "User not found" });
 
@@ -44,6 +44,10 @@ UserRouter.post('/update/:id' , protectRoute , async (req,res)=>{
         let user = await User.findById(userId);
         if(!userId) {
             return res.status(400).json("user not found");
+        }
+
+        if(req.params.id!==userId.toString()){
+            return res.status(400).json("ypu can't update profile of others");
         }
 
         if(password){
