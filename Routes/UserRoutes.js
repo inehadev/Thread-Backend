@@ -5,6 +5,8 @@ const User = require('../models/usermodel');
 const bcrypt=require('bcrypt');
 const protectRoute = require('../middlewware/protectRoute')
 
+/// api to follow and unfollow user
+
 UserRouter.post('/follow/:id', protectRoute, async (req, res) => {
     try {
         const { id } = req.params;
@@ -34,6 +36,8 @@ UserRouter.post('/follow/:id', protectRoute, async (req, res) => {
 });
 
 
+//// api to update the user profile
+
 
 UserRouter.post('/update/:id' , protectRoute , async (req,res)=>{
 
@@ -47,7 +51,7 @@ UserRouter.post('/update/:id' , protectRoute , async (req,res)=>{
         }
 
         if(req.params.id!==userId.toString()){
-            return res.status(400).json("ypu can't update profile of others");
+            return res.status(400).json("you can't update profile of others");
         }
 
         if(password){
@@ -66,9 +70,25 @@ UserRouter.post('/update/:id' , protectRoute , async (req,res)=>{
         
     } catch (error) {
         console.log("Error in follow:", error.message);
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: "error in update proile user" });
     }
 
 })
+
+
+/// api to get the user profile
+
+ UserRouter.get('/profile/:username' , protectRoute , async (req,res)=>{
+    const {username} = req.params;
+    try {
+        const user= await User.findOne({username}).select("-password").select("-updateAt");
+        if(!user) return res.status(400).json({message:"User not found"});
+        res.status(200).json(user);
+        
+    } catch (error) {
+        console.log("Error in follow:", error.message);
+        res.status(500).json({message:"erro in user get profie"});
+    }
+ })
 
 module.exports=UserRouter;
