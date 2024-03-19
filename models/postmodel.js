@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const postSchema=mongoose.Schema({
     postedBy:{
-        type:mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref:"user",
         required:true
     },
@@ -40,5 +40,5 @@ const postSchema=mongoose.Schema({
 }
 )
 
-const Post= mongoose.model('Post' , postSchema);
-module.exports= Post;
+const Post = mongoose.model('Post' ,  postSchema );
+module.exports = Post;
