@@ -14,7 +14,7 @@ PostRoutes.post('/CreatePost' , protectRoute , async(req,res)=>{
         if(!postedBy || !text){
             return res.status(400).json({message:"postedBy and text fields are required"});
         }
-        console.log("all ok")
+        
         const user = await User.findById( postedBy);
     
         if(!user){
@@ -56,6 +56,28 @@ PostRoutes.get('/:postid' , protectRoute,  async (req,res)=>{
    } catch (error) {
     res.status(400).json({message:error.message});
    }
+})
+
+
+//api to delete the post 
+
+PostRoutes.delete('/:postid' , protectRoute, async(req,res)=>{
+    try {
+        const post = await Post.findById(req.params.postid);
+        if(!post){
+            return res.status(400).json({message:"Post not found"});
+        }
+        if (post.postedBy.toString() !== req.user._id.toString()) {
+            return res.status(401).json({message:"Unauthorized to delete the post"});
+        }
+
+        await Post.findByIdAndDelete(req.params.postid);
+        return res.status(200).json({message:"Post deleted successfully"});
+
+        
+    } catch (error) {
+        return res.status(400).json({message:error.message});
+    }
 })
 
 module.exports=PostRoutes;
