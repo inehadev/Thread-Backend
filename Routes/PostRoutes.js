@@ -104,4 +104,51 @@ PostRoutes.post('/like/:id', protectRoute , async(req,res)=>{
 ;
 })
 
+/// api to reply to the post
+
+PostRoutes.post('/reply/:id' , protectRoute , async(req,res)=>{
+    try{
+    const {text}=req.body;
+    const {  userProfilePic, username } = req.user;
+    const {id:postid}=req.params;
+    const   userId=req.user._id;
+    
+    const post = await Post.findById(postid);
+    if(!post){
+        return res.status(404).json({message:"Post not found"});
+    }
+    if (!text) {
+        return res.status(400).json({ message: "Text field cannot be empty" });
+    }
+    const reply = {   userId, text,  userProfilePic, username };
+   post.replies.push(reply);
+    await post.save();
+    return res.status(200).json({message:"user reply to post" , post});
+}catch(error){
+    res.status(500).json({message:error.message});
+}
+})
+
+
+///api to get feed post
+
+PostRoutes.get('/getFeedPost' , protectRoute , async(req,res)=>{
+    try {
+       console.log(user._id)
+        const userId=req.user._id;
+        const user= await User.findById(userId);
+        if(!user){
+            return res.status(404).json({message:"User not found"});
+        }
+        const following=user.following;
+        const feedPost=await Post.find({postedBy:{$in:following}}).sort({createdAt: -1});
+        return res.status(200).json(feedPost);
+    }catch (error) {
+        return res.status(500).json({message:error.message})
+        
+    }
+
+})
+
+
 module.exports=PostRoutes;
