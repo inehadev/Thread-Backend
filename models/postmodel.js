@@ -12,10 +12,10 @@ const postSchema=mongoose.Schema({
     img:{
         type:String
     },
-    likes:{
-        type:Number,
-        default:0
-    },
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId, // Change type to ObjectId
+        ref: "user" // Reference the user model
+    }],
     replies:[{
         userId:{
             type:mongoose.Schema.Types.ObjectId,

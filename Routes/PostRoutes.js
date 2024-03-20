@@ -80,4 +80,28 @@ PostRoutes.delete('/:postid' , protectRoute, async(req,res)=>{
     }
 })
 
+/// api to likeUnlike the post
+
+PostRoutes.post('/like/:id', protectRoute , async(req,res)=>{
+  const {id:postid}=req.params;
+  const userid= req.user._id;
+  const post = await Post.findById(postid);
+  if(!post){
+    return res.status(400).json({messsage:'Post not found'});
+
+  }
+  const userlikedPost = post.likes.includes(userid);
+  
+  if(userlikedPost){
+    await Post.updateOne({_id:postid},{$pull:{likes:userid}});
+    res.status(200).json({message:"userliked the post successfully"});
+  }else{
+    post.likes.push(userid);
+    await post.save();
+    return res.status(200).json({message:"Post liked successfully"})
+  }
+
+;
+})
+
 module.exports=PostRoutes;
