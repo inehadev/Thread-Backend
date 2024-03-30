@@ -8,10 +8,10 @@ const AuthRouter = express.Router();
 
 
 AuthRouter.post('/register' , async (req,res)=>{
-    const { name , username , email , password , profilePic, followers , following  , bio} = req.body;
+    const { name , username , email , password } = req.body;
     const existingUser = await  User.findOne({username , email});
     if(existingUser){
-        res.status(400).json("email already register try with another email")
+       return res.status(400).json( {error:" email already register try with another email"})
     }else{
         const securePassword = await bcrypt.hash(password,10);
 
@@ -20,15 +20,11 @@ AuthRouter.post('/register' , async (req,res)=>{
             username,
             email,
             password:securePassword,
-            profilePic,
-            followers,
-            following,
-            bio
-
+           
         })
 
         user = await  user.save();
-        res.status(200).json(user);
+        return  res.status(200).json(user);
        
            
 
@@ -41,18 +37,18 @@ AuthRouter.post('/login' , async(req,res)=>{
     const {username , password} = req.body;
     const user = await User.findOne({username});
     if(!user){
-        res.status(404).json("User not Found");
+        res.status(404).json({ error:"User not Found"});
     }
 
-    const ismatch = bcrypt.compare(password , user.password);
+    const ismatch =await  bcrypt.compare(password , user.password)
     if(!ismatch){
-        res.status(400).json("password incorrect");
+        res.status(400).json({ error:"password incorrect"});
     }
-    else{
-        const token = jwt.sign({ userId: user._id } , "secureKey");
+    
+        const token = jwt.sign({ userId: user._id } , "x-auth-token");
         if(user){
             generateTokenAndSetCookies(user._id,res);
-       }
+       
         
         res.json({user , token});
        

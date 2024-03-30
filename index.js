@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const UserRouter = require('./Routes/UserRoutes');
 const PostRoutes = require('./Routes/PostRoutes');
 const PORT =5000;
+const cors = require('cors')
 
 mongoose.connect("mongodb+srv://neha-:210280481@cluster0.ljuzc3b.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 .then(
@@ -14,6 +15,7 @@ mongoose.connect("mongodb+srv://neha-:210280481@cluster0.ljuzc3b.mongodb.net/?re
 .catch((error)=>{
     console.log(error);
 })
+app.use(cors());
 app.use(cookieParser());
 
 app.use(express.json());
