@@ -5,15 +5,35 @@ const AuthRouter = require('./Routes/Authentication');
 const cookieParser = require('cookie-parser');
 const UserRouter = require('./Routes/UserRoutes');
 const PostRoutes = require('./Routes/PostRoutes');
-const PORT =5000;
 const cors = require('cors')
+const cloudinary = require('cloudinary').v2;
+const dotenv = require('dotenv');
+dotenv.config();
 
-mongoose.connect("mongodb+srv://neha-:210280481@cluster0.ljuzc3b.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-.then(
-    console.log(`Database connected successfully`)
-)
-.catch((error)=>{
-    console.log(error);
+const PORT=process.env.PORT || 5000;
+
+const connectDB = async () => {
+	try {
+		const conn = await mongoose.connect(process.env.MONGO_URI, {
+			// To avoid warnings in the console
+			useNewUrlParser: true,
+			useUnifiedTopology: true,
+		});
+
+		console.log(`MongoDB Connected: ${conn.connection.host}`);
+	} catch (error) {
+		console.error(`Error: ${error.message}`);
+		process.exit(1);
+	}
+}
+
+
+cloudinary.config({
+   cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
+   api_key:process.env.CLOUDINARY_API_KEY,
+   api_secret:process.env.CLOUDINARY_API_SECRET
+
+
 })
 app.use(cors());
 app.use(cookieParser());

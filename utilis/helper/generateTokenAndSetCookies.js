@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
  const generateTokenAndSetCookies=(userId,res)=>{
 
-  const token =jwt.sign({userId},"secureKey" );
+  const token =jwt.sign({userId},"x-auth-token" );
 
   res.cookie("jwt" , token, {
     httpOnly:true,
