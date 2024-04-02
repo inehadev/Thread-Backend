@@ -4,6 +4,7 @@ const UserRouter= express.Router();
 const User = require('../models/usermodel');
 const bcrypt=require('bcrypt');
 const protectRoute = require('../middlewware/protectRoute')
+const cloudinary = require('cloudinary').v2;
 
 /// api to follow and unfollow user
 
@@ -39,9 +40,10 @@ UserRouter.post('/follow/:id', protectRoute, async (req, res) => {
 //// api to update the user profile
 
 
-UserRouter.post('/update/:id' , protectRoute , async (req,res)=>{
+UserRouter.put('/update/:id' , protectRoute , async (req,res)=>{
 
-    const {name , username , email , password , profilepic , bio} = req.body;
+    const {name , username , email , password ,  bio} = req.body;
+    let {profilepic }=req.body;
     const userId = req.user._id;
     try {
 
@@ -58,7 +60,15 @@ UserRouter.post('/update/:id' , protectRoute , async (req,res)=>{
             const hashpassword= await bcrypt.hash(password, 10);
             user.password = hashpassword;
         }
+        
 
+        if(profilepic){
+            if(user.profilepic){
+                await cloudinary.uploader.destroy(user.profilepic.split("/").pop().split(".")[0])
+            }
+            const uploadresponse = cloudinary.uploader.upload(profilepic);
+            profilepic=(await uploadresponse).secure_url
+        }
         user.name= name || user.name;
         user.username=username || user.username;
         user.email= email|| user.email;
