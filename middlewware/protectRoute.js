@@ -6,7 +6,7 @@ const protectRoute=async(req,res,next)=>{
         const token = req.cookies.jwt;
         if(!token)
 return res.status(401).json({message:"Unauthorized"}) ;
-const decoded= jwt.verify(token,"secureKey");
+const decoded= jwt.verify(token,"x-auth-token");
 const user = await User.findById(decoded.userId).select("-password"); 
 req.user= user;
 next();      

@@ -42,8 +42,9 @@ UserRouter.post('/follow/:id', protectRoute, async (req, res) => {
 
 UserRouter.put('/update/:id' , protectRoute , async (req,res)=>{
 
-    const {name , username , email , password ,  bio} = req.body;
-    let {profilepic }=req.body;
+    console.log("all okay")
+    const {name , username , email , password ,  bio  } = req.body;
+    // let {profilepic }=req.body;
     const userId = req.user._id;
     try {
 
@@ -66,7 +67,7 @@ UserRouter.put('/update/:id' , protectRoute , async (req,res)=>{
             if(user.profilepic){
                 await cloudinary.uploader.destroy(user.profilepic.split("/").pop().split(".")[0])
             }
-            const uploadresponse = cloudinary.uploader.upload(profilepic);
+            const uploadresponse =  await cloudinary.uploader.upload(profilepic);
             profilepic=(await uploadresponse).secure_url
         }
         user.name= name || user.name;
@@ -84,6 +85,7 @@ UserRouter.put('/update/:id' , protectRoute , async (req,res)=>{
     }
 
 })
+
 
 
 /// api to get the user profile
