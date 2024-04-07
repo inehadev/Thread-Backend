@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const app = express();
 const UserRouter= express.Router();
 const User = require('../models/usermodel');
@@ -40,13 +41,23 @@ UserRouter.post('/follow/:id', protectRoute, async (req, res) => {
 //// api to update the user profile
 
 
-UserRouter.put('/update/:id' , protectRoute , async (req,res)=>{
 
-    const {name , username , email , password ,  bio  } = req.body;
-    let {profilepic }=req.body;
-    const userId = req.user._id;
+
+
+UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
+
+   
     try {
 
+        const {name , username , email , password ,  bio  } = req.body;
+        let {profilepic }=req.body;
+        const userId = req.params.id;
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            // return res.status(400).send('Invalid user ID');
+            console.log("Invalid user id");
+          }
+       
+          console.log("this is user id" , userId);
         let user = await User.findById(userId);
         if(!userId) {
             return res.status(400).json("user not found");
@@ -57,7 +68,7 @@ UserRouter.put('/update/:id' , protectRoute , async (req,res)=>{
         }
 
         if(password){
-            const hashpassword= await bcrypt.hash(password, 10);
+            const hashpassword= await bcrypt.hash(password, 10);s
             user.password = hashpassword;
         }
         
@@ -89,11 +100,13 @@ UserRouter.put('/update/:id' , protectRoute , async (req,res)=>{
 
 /// api to get the user profile
 
- UserRouter.get('/profile/:username' , protectRoute , async (req,res)=>{
+ UserRouter.get('/profile/:username' , async (req,res)=>{
+    
     const {username} = req.params;
     try {
-        const user= await User.findOne({username}).select("-password").select("-updateAt");
+        const user= await User.findOne({username}).select({ password: 0, updatedAt: 0 });
         if(!user) return res.status(400).json({message:"User not found"});
+
         res.status(200).json(user);
         
     } catch (error) {

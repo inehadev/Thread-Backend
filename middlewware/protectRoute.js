@@ -4,8 +4,12 @@ const jwt=require('jsonwebtoken')
 const protectRoute=async(req,res,next)=>{
     try {
         const token = req.cookies.jwt;
-        if(!token)
-return res.status(401).json({message:"Unauthorized"}) ;
+        if(!token){
+            console.log("Token not found")
+            return res.status(401).json({message:"Unauthorized"}) ;
+        }
+        
+
 const decoded= jwt.verify(token,"x-auth-token");
 const user = await User.findById(decoded.userId).select("-password"); 
 req.user= user;
