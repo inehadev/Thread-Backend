@@ -12,7 +12,8 @@ const protectRoute=async(req,res,next)=>{
 
 const decoded= jwt.verify(token,"x-auth-token");
 const user = await User.findById(decoded.userId).select("-password"); 
-req.user= user;
+res.cookie('jwt', token, { httpOnly: true, path: '/' });
+console.log(res.cookie);
 next();      
     } catch (error) {
        res.status(500).json({message:error.message}) 
