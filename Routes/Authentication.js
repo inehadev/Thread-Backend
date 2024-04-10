@@ -46,10 +46,11 @@ AuthRouter.post('/login' , async(req,res)=>{
     }
     
         const token = jwt.sign({ userId: user._id } , "x-auth-token");
-        if(user){
+        if(token){
             generateTokenAndSetCookies(user._id,res);
 
             res.status(200).json({
+                token,
                 _id:user._id,
                 name:user.name,
                 username:user.username,

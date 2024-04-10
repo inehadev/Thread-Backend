@@ -4,13 +4,14 @@ const jwt = require('jsonwebtoken');
 
   const token =jwt.sign({userId},"x-auth-token" );
 
-  res.cookie("jwt" , token, {
+  res.cookie("jwt" , token,    {
     httpOnly:true,
-    maxAge:15*24*60*60*1000,
+    path: '/',
+    maxAge:90*24*60*60*1000,
     sameSite:"strict"
   })
   return res.cookie.jwt;
-
+ 
 
 }
 

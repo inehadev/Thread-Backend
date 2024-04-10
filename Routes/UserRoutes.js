@@ -9,9 +9,10 @@ const cloudinary = require('cloudinary').v2;
 
 /// api to follow and unfollow user
 
-UserRouter.post('/follow/:id', protectRoute, async (req, res) => {
+UserRouter.post('/follow/:id' , async (req, res) => {
     try {
         const { id } = req.params;
+      
         const usertomodify = await User.findById(id);
         const currentUser = await User.findById(req.user._id);
 
@@ -33,7 +34,7 @@ UserRouter.post('/follow/:id', protectRoute, async (req, res) => {
         }
     } catch (error) {
         console.log("Error in follow:", error.message);
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ "error": error.message });
     }
 });
 
