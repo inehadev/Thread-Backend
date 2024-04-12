@@ -10,7 +10,7 @@ const jwt = require('jsonwebtoken');
     maxAge:90*24*60*60*1000,
     sameSite:"strict"
   })
-  return res.cookie.jwt;
+  return token;
  
 
 }

@@ -22,8 +22,21 @@ AuthRouter.post('/register' , async (req,res)=>{
             password:securePassword,
            
         })
-
         user = await  user.save();
+        if (user) {
+			
+
+			res.status(201).json({
+				_id: user._id,
+				name: user.name,
+				email: user.email,
+				username: user.username,
+				bio: user.bio,
+				profilePic:User.updateSearchIndex.profilePic,
+			});
+		} else {
+			res.status(400).json({ error: "Invalid user data" });
+		}
         return  res.status(200).json(user);
        
            
@@ -34,6 +47,7 @@ AuthRouter.post('/register' , async (req,res)=>{
 
 
 AuthRouter.post('/login' , async(req,res)=>{
+    try{
     const {username , password} = req.body;
     const user = await User.findOne({username});
     if(!user){
@@ -45,10 +59,11 @@ AuthRouter.post('/login' , async(req,res)=>{
         res.status(400).json({ error:"password incorrect"});
     }
     
-        const token = jwt.sign({ userId: user._id } , "x-auth-token");
+        const token = jwt.sign({ userId: user._id } , "x-jwt-token");
+        
+        
         if(token){
-            generateTokenAndSetCookies(user._id,res);
-
+           
             res.status(200).json({
                 token,
                 _id:user._id,
@@ -60,7 +75,11 @@ AuthRouter.post('/login' , async(req,res)=>{
                 profilepic:user.profilepic
 
             })
+            console.log("user is loggin successfull")
     
+        }
+    }catch(error){
+        console.log("error in login");
     }
  
 })

@@ -1,17 +1,17 @@
 const User = require('../models/usermodel');
 const jwt=require('jsonwebtoken')
-const generateTokenAndSetCookies =require('../utilis/helper/generateTokenAndSetCookies')
+
 
 const protectRoute=async(req,res,next)=>{
     try {
-        console.log(req.cookies)
-        const token = req.cookies.jwt;
+        const token = req.header('x-auth-token');
+        console.log("this is undefined token",token);
         if(!token){
-            console.log("Token not found")
+            console.log("Token not found");
             return res.status(401).json({message:"Unauthorized"}) ;
         }
         
-        const decoded= jwt.verify(token,"x-auth-token");
+        const decoded= jwt.verify(token,"x-jwt-token");
         const user = await User.findById(decoded.userId).select("-password"); 
 
          if (!user) {
@@ -19,8 +19,11 @@ const protectRoute=async(req,res,next)=>{
             return res.status(401).json({ message: "not authorized" });
         }
 
-
+req.token=token;
 req.user = user;
+
+
+console.log("this is getting user id" , req.user);
 next();      
     } catch (error) {
        res.status(500).json({message:error.message}) 

@@ -17,7 +17,9 @@ dotenv.config();
 
 const PORT=process.env.PORT || 5000;
 
-
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors());
 
 connectDB();
 cloudinary.config({
@@ -26,11 +28,9 @@ cloudinary.config({
    api_secret:process.env.CLOUDINARY_API_SECRET
 
 })
-app.use(cookieParser());
-app.use(cors());
 
 
-app.use(express.json());
+
 app.use(AuthRouter);
 app.use(UserRouter);
 app.use(PostRoutes);

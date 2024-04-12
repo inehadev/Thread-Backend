@@ -14,7 +14,8 @@ UserRouter.post('/follow/:id' , async (req, res) => {
         const { id } = req.params;
       
         const usertomodify = await User.findById(id);
-        const currentUser = await User.findById(req.user._id);
+        const currentUser = await User.findById(req.userId);
+        console.log({currentUser,usertomodify})
 
         if (id === req.user._id.toString()) return res.status(400).json({ message: "You cannot follow and unfollow yourself" });
 
@@ -54,7 +55,7 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
         let {profilepic }=req.body;
         const userId = req.params.id;
         if (!mongoose.Types.ObjectId.isValid(userId)) {
-            // return res.status(400).send('Invalid user ID');
+            return res.status(400).send('Invalid user ID');
             console.log("Invalid user id");
           }
        

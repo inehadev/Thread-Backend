@@ -7,6 +7,8 @@ const PostRoutes= express.Router();
 const cloudinary = require('cloudinary').v2;
 
 PostRoutes.post('/CreatePost' , protectRoute , async(req,res)=>{
+
+    console.log(req.user);
     
     try {
         const{postedBy,text}=req.body;
