@@ -54,14 +54,16 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
         const {name , username , email , password ,  bio  } = req.body;
         let {profilepic }=req.body;
         const userId = req.params.id;
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).send('Invalid user ID');
-            console.log("Invalid user id");
-          }
+       
+        // if (!mongoose.Types.ObjectId.isValid(userId)) {
+        //     return res.status(400).send('Invalid user ID');
+        //     console.log("Invalid user id");
+        //   }
        
           console.log("this is user id" , userId);
         let user = await User.findById(userId);
         if(!userId) {
+            console.log("not found")
             return res.status(400).json("user not found");
         }
 
