@@ -5,7 +5,6 @@ const jwt=require('jsonwebtoken')
 const protectRoute=async(req,res,next)=>{
     try {
         const token = req.header('x-auth-token');
-        console.log("this is undefined token",token);
         if(!token){
             console.log("Token not found");
             return res.status(401).json({message:"Unauthorized"}) ;
@@ -21,9 +20,6 @@ const protectRoute=async(req,res,next)=>{
 
 req.token=token;
 req.user = user;
-
-
-console.log("this is getting user id" , req.user);
 next();      
     } catch (error) {
        res.status(500).json({message:error.message}) 

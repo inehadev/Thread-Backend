@@ -54,7 +54,7 @@ PostRoutes.post('/CreatePost' , protectRoute , async(req,res)=>{
 
 /// api to get the post
 
-PostRoutes.get('/:postid' , protectRoute,  async (req,res)=>{
+PostRoutes.get('/:postid' ,  async (req,res)=>{
    try {
     const post = await Post.findById(req.params.postid);
     if(!post){

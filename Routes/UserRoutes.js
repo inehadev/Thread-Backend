@@ -9,12 +9,13 @@ const cloudinary = require('cloudinary').v2;
 
 /// api to follow and unfollow user
 
-UserRouter.post('/follow/:id' , async (req, res) => {
+UserRouter.post('/follow/:id' , protectRoute , async (req, res) => {
     try {
         const { id } = req.params;
+        console.log("this is id:" , id);
       
         const usertomodify = await User.findById(id);
-        const currentUser = await User.findById(req.userId);
+        const currentUser = await User.findById(req.user);
         console.log({currentUser,usertomodify})
 
         if (id === req.user._id.toString()) return res.status(400).json({ message: "You cannot follow and unfollow yourself" });
@@ -53,23 +54,17 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
 
         const {name , username , email , password ,  bio  } = req.body;
         let {profilepic }=req.body;
-        const userId = req.params.id;
-       
-        // if (!mongoose.Types.ObjectId.isValid(userId)) {
-        //     return res.status(400).send('Invalid user ID');
-        //     console.log("Invalid user id");
-        //   }
-       
-          console.log("this is user id" , userId);
-        let user = await User.findById(userId);
-        if(!userId) {
-            console.log("not found")
+                const user = req.user;
+                console.log("userid:" , user._id);
+        // let user = await User.findById(userid);
+        if(!user) {
             return res.status(400).json("user not found");
         }
+        console.log(user);
 
-        if(req.params.id!==userId.toString()){
-            return res.status(400).json("you can't update profile of others");
-        }
+        // if(req.params.id!==user._id.toString()){
+        //     return res.status(400).json("you can't update profile of others");
+        // }
 
         if(password){
             const hashpassword= await bcrypt.hash(password, 10);s
@@ -89,12 +84,11 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
         user.email= email|| user.email;
         user.bio=bio || user.bio;
         user.profilepic=profilepic || user.profilepic;
-
         await user.save();
         return res.status(200).json({message:"Profile updated successfully"})
         
     } catch (error) {
-        console.log("Error in follow:", error.message);
+        console.log("Error in Update:", error.message);
         return res.status(500).json({ message: "error in update proile user" });
     }
 
