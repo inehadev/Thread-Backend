@@ -138,25 +138,67 @@ PostRoutes.post('/reply/:id' , protectRoute , async(req,res)=>{
 })
 
 
+
+
+
+
 ///api to get feed post
 
-PostRoutes.get('/getFeedPost' , protectRoute , async(req,res)=>{
-    try {
-       console.log(user._id)
-        const userId=req.user._id;
-        const user= await User.findById(userId);
-        if(!user){
-            return res.status(404).json({message:"User not found"});
-        }
-        const following=user.following;
-        const feedPost=await Post.find({postedBy:{$in:following}}).sort({createdAt: -1});
-        return res.status(200).json(feedPost);
-    }catch (error) {
-        return res.status(500).json({message:error.message})
+// PostRoutes.get('/getFeedPost'  , async(req,res)=>{
+//     try {
+//         const userId=req.user._id;
+//         console.log("hello")
+//        console.log(user._id)
+       
+//         const user= await User.findById(userId);
+//         if(!user){
+//             return res.status(404).json({message:"User not found!!"});
+//         }
+//         const following=user.following;
+//         const feedPost=await Post.find({postedBy:{$in:following}}).sort({createdAt: -1});
+//         return res.status(200).json(feedPost);
+//     }catch (error) {
+//         return res.status(500).json({message:error.message})
         
-    }
+//     }
 
-})
+
+// })
+
+
+
+// // PostRoutes.get("/getpost" ,async (req , res)=>{
+// //     const posts = await Post.find({});
+// //     console.log(posts);
+// //     res.json(posts)
+
+
+
+// })
+
+
+
+PostRoutes.get('/feed', async (req, res) => {
+    try {
+        // Query the database to retrieve feed posts
+        const posts = await Post.find()
+            .populate('postedBy', 'name username profilepic')
+            .sort({ createdAt: -1 })
+            .limit(10); // Limit the number of posts to retrieve
+
+        // If there are no posts, return a 404 status code
+        if (!posts || posts.length === 0) {
+            return res.status(404).json({ message: 'No feed posts found' });
+        }
+
+        // If feed posts are found, return them
+        res.status(200).json(posts);
+    } catch (error) {
+        // If an error occurs, return a 500 status code and the error message
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
 
 
 module.exports=PostRoutes;

@@ -4,7 +4,8 @@ const app = express();
 const UserRouter= express.Router();
 const User = require('../models/usermodel');
 const bcrypt=require('bcrypt');
-const protectRoute = require('../middlewware/protectRoute')
+const protectRoute = require('../middlewware/protectRoute');
+const Post = require('../models/postmodel');
 const cloudinary = require('cloudinary').v2;
 
 /// api to follow and unfollow user
@@ -78,6 +79,7 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
             }
             const uploadresponse =  await cloudinary.uploader.upload(profilepic);
             profilepic=uploadresponse.secure_url
+            console.log(profilepic);
         }
         user.name= name || user.name;
         user.username=username || user.username;
@@ -112,5 +114,37 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
         res.status(500).json({message:"erro in user get profie"});
     }
  })
+
+
+    UserRouter.get("/getfeedpost" , async (req , res)=>{
+        const posts = await Post.find({});
+        console.log(posts);
+        res.json(posts)
+    })
+
+
+    
+UserRouter.get('/feed', async (req, res) => {
+    try {
+       
+        const posts = await Post.find()
+            .populate('postedBy', 'name username profilepic')
+            .sort({ createdAt: -1 })
+            .limit(10); 
+
+    
+        if (!posts || posts.length === 0) {
+            return res.status(404).json({ message: 'No feed posts found' });
+        }
+
+        // If feed posts are found, return them
+        res.status(200).json(posts);
+    } catch (error) {
+        // If an error occurs, return a 500 status code and the error message
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 
 module.exports=UserRouter;
