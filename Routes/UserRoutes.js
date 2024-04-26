@@ -51,36 +51,54 @@ UserRouter.post('/follow/:id' , protectRoute , async (req, res) => {
 UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
 
    
-    try {
+   
 
-        const {name , username , email , password ,  bio  } = req.body;
-        let {profilepic }=req.body;
-                const user = req.user;
-                console.log("userid:" , user._id);
-        // let user = await User.findById(userid);
+        const {name , username , email , password ,  bio , profilepic  } = req.body;
+      
+        // let {profilepic }=req.body;
+                const userId = req.user._id.toString();
+                console.log(userId);
+                let reqUserId = req.params.id;
+                reqUserId = reqUserId.startsWith(':') ? reqUserId.slice(1) : reqUserId;
+                console.log(reqUserId);
+             
+                
+                try {
+                
+        let user = await User.findById(userId);
         if(!user) {
             return res.status(400).json("user not found");
         }
-        console.log(user);
+       
 
-        // if(req.params.id!==user._id.toString()){
-        //     return res.status(400).json("you can't update profile of others");
-        // }
+        if(reqUserId!==userId ){
+            return res.status(400).json("you can't update profile of others");
+        }
 
         if(password){
-            const hashpassword= await bcrypt.hash(password, 10);s
+            const hashpassword= await bcrypt.hash(password, 10);
             user.password = hashpassword;
         }
-        
+        console.log("working");
 
         if(profilepic){
+            
             if(user.profilepic){
+                console.log("yes there is profile photo to be uploaded")
                 await cloudinary.uploader.destroy(user.profilepic.split("/").pop().split(".")[0])
             }
-            const uploadresponse =  await cloudinary.uploader.upload(profilepic);
-            profilepic=uploadresponse.secure_url
-            console.log(profilepic);
+            // const uploadresponse =  await cloudinary.uploader.upload(profilepic);
+            // profilepic=uploadresponse.secure_url
+            // console.log(profilepic);
+
+            const uploadResponse = await cloudinary.uploader.upload(profilepic);
+            if (uploadResponse.secure_url) {
+                profilepic = uploadResponse.secure_url;
+            
         }
+    }
+        console.log("profilepic is uploaded " , profilepic)
+        
         user.name= name || user.name;
         user.username=username || user.username;
         user.email= email|| user.email;
