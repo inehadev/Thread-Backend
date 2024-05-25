@@ -50,21 +50,21 @@ UserRouter.post('/follow/:id' , protectRoute , async (req, res) => {
 
 UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
 
+    
    
-   
-
-        const {name , username , email , password ,  bio , profilepic  } = req.body;
+ const {name , username , email , password ,  bio  } = req.body;
       
-        // let {profilepic }=req.body;
+        let {profilepic }=req.body;
+        console.log(profilepic)
                 const userId = req.user._id.toString();
                 console.log(userId);
                 let reqUserId = req.params.id;
                 reqUserId = reqUserId.startsWith(':') ? reqUserId.slice(1) : reqUserId;
                 console.log(reqUserId);
-             
+                console.log("Request Payload:", req.body);
                 
-                try {
-                
+      try {
+
         let user = await User.findById(userId);
         if(!user) {
             return res.status(400).json("user not found");
@@ -76,28 +76,26 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
         }
 
         if(password){
+      
             const hashpassword= await bcrypt.hash(password, 10);
             user.password = hashpassword;
         }
         console.log("working");
 
         if(profilepic){
-            
-            if(user.profilepic){
+            console.log("Profile picture:", profilepic);
+           
                 console.log("yes there is profile photo to be uploaded")
-                await cloudinary.uploader.destroy(user.profilepic.split("/").pop().split(".")[0])
-            }
-            // const uploadresponse =  await cloudinary.uploader.upload(profilepic);
-            // profilepic=uploadresponse.secure_url
-            // console.log(profilepic);
+           
 
-            const uploadResponse = await cloudinary.uploader.upload(profilepic);
-            if (uploadResponse.secure_url) {
-                profilepic = uploadResponse.secure_url;
+            const uploadresponse =  await cloudinary.uploader.upload(profilepic);
+            profilepic-uploadresponse.secure_url
+
+           
             
-        }
-    }
-        console.log("profilepic is uploaded " , profilepic)
+         }
+    
+     console.log("okk till here")
         
         user.name= name || user.name;
         user.username=username || user.username;
@@ -105,7 +103,9 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
         user.bio=bio || user.bio;
         user.profilepic=profilepic || user.profilepic;
         await user.save();
+        console.log(user);
         return res.status(200).json({message:"Profile updated successfully"})
+       
         
     } catch (error) {
         console.log("Error in Update:", error.message);
@@ -118,11 +118,18 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
 
 /// api to get the user profile
 
- UserRouter.get('/profile/:username' , async (req,res)=>{
+ UserRouter.get('/profile/:query' , async (req,res)=>{
     
-    const {username} = req.params;
+    const {query} = req.params;
     try {
-        const user= await User.findOne({username}).select({ password: 0, updatedAt: 0 });
+        let user;
+        if (mongoose.Types.ObjectId.isValid(query)) {
+			user = await User.findOne({ _id: query }).select("-password").select("-updatedAt");
+            console.log("fine")
+		} else {
+			// query is username
+			user = await User.findOne({ username: query }).select("-password").select("-updatedAt");
+		}
         if(!user) return res.status(400).json({message:"User not found"});
 
         res.status(200).json(user);
@@ -142,26 +149,23 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
 
 
     
-UserRouter.get('/feed', async (req, res) => {
+UserRouter.get('/feedpost', protectRoute, async (req, res) => {
     try {
        
-        const posts = await Post.find()
-            .populate('postedBy', 'name username profilepic')
-            .sort({ createdAt: -1 })
-            .limit(10); 
+		const userId = req.user;
+		const user = await User.findById(userId);
+		if (!user) {
+			return res.status(404).json({ error: "User not found" });
+		}
 
-    
-        if (!posts || posts.length === 0) {
-            return res.status(404).json({ message: 'No feed posts found' });
-        }
+		const following = user.following;
 
-        // If feed posts are found, return them
-        res.status(200).json(posts);
-    } catch (error) {
-        // If an error occurs, return a 500 status code and the error message
-        console.error(error);
-        res.status(500).json({ message: 'Server Error' });
-    }
+		const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({ createdAt: -1 });
+
+		res.status(200).json(feedPosts);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
 });
 
 

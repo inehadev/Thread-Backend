@@ -13,8 +13,11 @@ const postSchema=mongoose.Schema({
         type:String
     },
     likes: [{
-        type: mongoose.Schema.Types.ObjectId, // Change type to ObjectId
-        ref: "user" // Reference the user model
+        // type: mongoose.Schema.Types.ObjectId, // Change type to ObjectId
+        // ref: "user" // Reference the user model
+        type: [mongoose.Schema.Types.ObjectId],
+			ref: "User",
+			default: [],
     }],
     replies:[{
         userId:{
