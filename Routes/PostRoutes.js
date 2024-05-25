@@ -53,7 +53,6 @@ PostRoutes.post('/CreatePost' , protectRoute , async(req,res)=>{
 })
 
 
-/// api to get the post
 
 PostRoutes.get('/:postid' ,  async (req,res)=>{
    try {
@@ -68,7 +67,7 @@ PostRoutes.get('/:postid' ,  async (req,res)=>{
 })
 
 
-//api to delete the post 
+
 
 PostRoutes.delete('/:postid' , protectRoute, async(req,res)=>{
     try {
@@ -89,7 +88,7 @@ PostRoutes.delete('/:postid' , protectRoute, async(req,res)=>{
     }
 })
 
-/// api to likeUnlike the post
+
 
 PostRoutes.post('/like/:id', protectRoute , async(req,res)=>{
   const {id:postid}=req.params;
@@ -113,7 +112,7 @@ PostRoutes.post('/like/:id', protectRoute , async(req,res)=>{
 ;
 })
 
-/// api to reply to the post
+
 
 PostRoutes.post('/reply/:id' , protectRoute , async(req,res)=>{
     try{

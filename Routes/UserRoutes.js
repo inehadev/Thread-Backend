@@ -8,7 +8,7 @@ const protectRoute = require('../middlewware/protectRoute');
 const Post = require('../models/postmodel');
 const cloudinary = require('cloudinary').v2;
 
-/// api to follow and unfollow user
+
 
 UserRouter.post('/follow/:id' , protectRoute , async (req, res) => {
     try {
@@ -42,7 +42,6 @@ UserRouter.post('/follow/:id' , protectRoute , async (req, res) => {
 });
 
 
-//// api to update the user profile
 
 
 
@@ -116,7 +115,6 @@ UserRouter.put('/update/:id' ,protectRoute,  async (req,res)=>{
 
 
 
-/// api to get the user profile
 
  UserRouter.get('/profile/:query' , async (req,res)=>{
     
